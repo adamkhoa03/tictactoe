@@ -50,6 +50,7 @@ Hệ thống là một ứng dụng web cho phép người chơi đăng ký tài
 - **Function Component**: Luôn sử dụng Function Component kết hợp với React Hooks. Không sử dụng Class Component.
 - **Component File Structure**: Mỗi Component nên được đặt trong một thư mục riêng cùng với file style phụ trợ hoặc test nếu có (ví dụ: `/components/GameBoard/GameBoard.tsx`).
 - **Zod & React Hook Form**: Tất cả các form nhập liệu (Đăng ký, Đăng nhập, Tạo phòng) phải được validate thông qua Zod schema trước khi submit lên server.
+- **Quy tắc Styling (Tailwind CSS)**: Luôn luôn sử dụng lớp tiện ích (utility classes) có sẵn của Tailwind CSS thay vì viết thuộc tính CSS thuần trong file `.css` hoặc thuộc tính `style`. Nếu cần định nghĩa thêm font chữ, kích cỡ chữ, màu sắc, keyframe hoặc chuyển động tùy chỉnh, hãy mở rộng cấu hình trong `tailwind.config.js` để áp dụng rộng rãi qua Tailwind.
 
 ### Redux State Management:
 - Sử dụng **Redux Toolkit** (`@reduxjs/toolkit`) để quản lý global state.

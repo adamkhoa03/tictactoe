@@ -1,12 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-// Import slices from features here
-// import authReducer from '../features/auth/slices/authSlice';
-// import gameReducer from '../features/game/slices/gameSlice';
+import authReducer from '../features/auth/slices/authSlice';
 
 export const store = configureStore({
   reducer: {
-    // auth: authReducer,
-    // game: gameReducer,
+    auth: authReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -46,7 +46,7 @@
     --popover-foreground: 210 40% 98%;
 
     --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -73,5 +73,49 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer utilities {
+  .neon-grid {
+    background-image: 
+      linear-gradient(rgba(33, 112, 228, 0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(33, 112, 228, 0.15) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.08;
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 88, 190, 0.08);
+  }
+
+  .dark .glass-panel {
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  .floating-orb {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: -1;
+    animation: drift 20s infinite alternate ease-in-out;
+  }
+
+  .input-focus-glow:focus-within {
+    box-shadow: 0 0 15px rgba(0, 88, 190, 0.2);
+    border-color: #0058be;
+  }
+
+  .btn-hover-glow:hover {
+    box-shadow: 0 0 20px rgba(33, 112, 228, 0.4);
+    transform: translateY(-2px);
   }
 }
