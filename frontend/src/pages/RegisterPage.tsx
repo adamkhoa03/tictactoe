@@ -52,16 +52,12 @@ export const RegisterPage: React.FC = () => {
     <Card className="px-4 md:p-4 text-center transition-all duration-500 hover:shadow-2xl">
       {/* Brand / Logo Area */}
       <div className="mb-6 flex flex-col items-center select-none">
-        <div className="relative mb-6">
-          <div className="absolute inset-0 bg-secondary/20 blur-xl rounded-full scale-110"></div>
-          <img src={logoImg} alt="NeonXO Logo" className="w-24 h-24 relative z-10 drop-shadow-lg" />
+        <div className="relative">
+          <img src={logoImg} alt="logo" className="w-[120px] relative z-10 drop-shadow-lg" />
         </div>
         <h1 className="font-quicksand text-headline-lg font-bold text-on-surface mb-2 select-none">
           {t("createAccount")}
         </h1>
-        <p className="font-nunito text-body-md font-normal text-on-surface-variant select-none">
-          {t("joinBattle")}
-        </p>
       </div>
 
       {/* Alert Error Message */}
@@ -188,7 +184,7 @@ export const RegisterPage: React.FC = () => {
         </p>
         <Link
           to="/login"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-secondary-container text-on-secondary-container font-quicksand font-bold text-label-bold hover:bg-secondary hover:text-on-secondary transition-colors duration-300"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-secondary-container text-on-secondary-container font-quicksand font-bold text-label-bold hover:bg-opacity-80 transition-colors duration-300"
         >
           <span>{t("loginNow")}</span>
           <span className="material-symbols-outlined text-[18px] select-none">

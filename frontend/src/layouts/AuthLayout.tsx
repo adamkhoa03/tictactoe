@@ -59,9 +59,6 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 
       {/* Footer */}
       <footer className="relative z-10 w-full py-6 px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-4 text-on-surface-variant/70 max-w-7xl mx-auto">
-        <p className="font-nunito text-body-md font-normal text-[14px]">
-          {t("copyright")}
-        </p>
         <div className="flex gap-6 font-quicksand font-bold text-[14px]">
           <a className="hover:text-primary transition-colors cursor-pointer" href="#terms">
             {t("terms")}
