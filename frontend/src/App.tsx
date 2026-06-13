@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "./store/hooks";
 import { AuthLayout } from "./layouts/AuthLayout";
+import { MainLayout } from "./layouts/MainLayout";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LobbyPage } from "./pages/LobbyPage";
@@ -70,9 +71,9 @@ export const App: React.FC = () => {
           path="/lobby"
           element={
             <ProtectedRoute>
-              <AuthLayout>
+              <MainLayout>
                 <LobbyPage />
-              </AuthLayout>
+              </MainLayout>
             </ProtectedRoute>
           }
         />

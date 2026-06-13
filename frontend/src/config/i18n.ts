@@ -4,16 +4,20 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { z } from "zod";
 import authVi from "../features/auth/locales/vi";
 import authEn from "../features/auth/locales/en";
+import gameVi from "../features/game/locales/vi";
+import gameEn from "../features/game/locales/en";
 
 const resources = {
   vi: {
     translation: {
       ...authVi,
+      ...gameVi,
     },
   },
   en: {
     translation: {
       ...authEn,
+      ...gameEn,
     },
   },
 };

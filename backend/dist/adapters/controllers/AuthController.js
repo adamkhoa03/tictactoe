@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const auth_schema_1 = require("../../schemas/auth.schema");
 const zod_1 = require("zod");
+const i18n_1 = require("../../shared/i18n");
 class AuthController {
     registerUser;
     loginUser;
@@ -25,7 +26,7 @@ class AuthController {
             });
         }
         catch (error) {
-            this.handleError(res, error);
+            this.handleError(req, res, error);
         }
     };
     login = async (req, res) => {
@@ -41,19 +42,19 @@ class AuthController {
             });
         }
         catch (error) {
-            this.handleError(res, error);
+            this.handleError(req, res, error);
         }
     };
-    logout = async (_req, res) => {
+    logout = async (req, res) => {
         try {
             this.clearCookie(res);
             res.status(200).json({
                 success: true,
-                message: 'Logged out successfully',
+                message: (0, i18n_1.t)(req, 'Logged out successfully'),
             });
         }
         catch (error) {
-            this.handleError(res, error);
+            this.handleError(req, res, error);
         }
     };
     me = async (req, res) => {
@@ -61,7 +62,7 @@ class AuthController {
             if (!req.user || !req.user.userId) {
                 res.status(401).json({
                     success: false,
-                    message: 'Not authenticated',
+                    message: (0, i18n_1.t)(req, 'Not authenticated'),
                 });
                 return;
             }
@@ -69,7 +70,7 @@ class AuthController {
             if (!user) {
                 res.status(404).json({
                     success: false,
-                    message: 'User not found',
+                    message: (0, i18n_1.t)(req, 'User not found'),
                 });
                 return;
             }
@@ -81,7 +82,7 @@ class AuthController {
             });
         }
         catch (error) {
-            this.handleError(res, error);
+            this.handleError(req, res, error);
         }
     };
     setCookie(res, token) {
@@ -99,11 +100,11 @@ class AuthController {
             sameSite: 'lax',
         });
     }
-    handleError(res, error) {
+    handleError(req, res, error) {
         if (error instanceof zod_1.ZodError) {
             res.status(400).json({
                 success: false,
-                message: 'Validation failed',
+                message: (0, i18n_1.t)(req, 'Validation failed'),
                 errors: error.errors.map((e) => ({
                     field: e.path.join('.'),
                     message: e.message,
@@ -121,7 +122,7 @@ class AuthController {
         }
         res.status(statusCode).json({
             success: false,
-            message,
+            message: (0, i18n_1.t)(req, message),
         });
     }
 }

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NeonXO - Grandmaster Match</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&amp;family=Nunito+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#eff1f3",
+                    "tertiary-fixed": "#ffd9e4",
+                    "on-secondary-fixed-variant": "#5516be",
+                    "secondary-fixed-dim": "#d0bcff",
+                    "secondary-fixed": "#e9ddff",
+                    "outline": "#727785",
+                    "on-primary-container": "#fefcff",
+                    "surface-container-high": "#e6e8ea",
+                    "on-tertiary-container": "#fffbff",
+                    "tertiary-fixed-dim": "#ffb0cd",
+                    "inverse-primary": "#adc6ff",
+                    "surface-bright": "#f7f9fb",
+                    "on-tertiary-fixed-variant": "#8c0053",
+                    "primary-fixed-dim": "#adc6ff",
+                    "on-tertiary-fixed": "#3e0022",
+                    "tertiary-container": "#d23284",
+                    "tertiary": "#b10e6b",
+                    "on-surface": "#191c1e",
+                    "secondary-container": "#8455ef",
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-secondary-fixed": "#23005c",
+                    "on-primary-fixed": "#001a42",
+                    "on-primary-fixed-variant": "#004395",
+                    "surface-tint": "#005ac2",
+                    "inverse-surface": "#2d3133",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-container": "#fffbff",
+                    "on-primary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#c2c6d6",
+                    "surface-variant": "#e0e3e5",
+                    "primary-container": "#2170e4",
+                    "on-surface-variant": "#424754",
+                    "surface-container": "#eceef0",
+                    "surface-container-low": "#f2f4f6",
+                    "on-background": "#191c1e",
+                    "primary-fixed": "#d8e2ff",
+                    "secondary": "#6b38d4",
+                    "surface": "#f7f9fb",
+                    "error-container": "#ffdad6",
+                    "primary": "#0058be",
+                    "surface-dim": "#d8dadc",
+                    "background": "#f7f9fb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "section-margin": "40px",
+                    "container-padding": "24px",
+                    "unit": "8px",
+                    "game-board-gap": "12px",
+                    "element-gap": "16px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Quicksand"],
+                    "label-status": ["Nunito Sans"],
+                    "label-bold": ["Quicksand"],
+                    "headline-lg-mobile": ["Quicksand"],
+                    "display-game-piece": ["Quicksand"],
+                    "body-lg": ["Nunito Sans"],
+                    "headline-md": ["Quicksand"],
+                    "body-md": ["Nunito Sans"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "label-status": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "label-bold": ["14px", {"lineHeight": "20px", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "display-game-piece": ["64px", {"lineHeight": "1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .game-piece-x {
+            text-shadow: 0 0 15px rgba(0, 88, 190, 0.6);
+            color: #0058be;
+        }
+        .game-piece-o {
+            text-shadow: 0 0 15px rgba(107, 56, 212, 0.6);
+            color: #6b38d4;
+        }
+        .tile-hover-x:hover::after {
+            content: 'X';
+            opacity: 0.2;
+            font-family: 'Quicksand';
+            font-weight: 700;
+        }
+        .tile-hover-o:hover::after {
+            content: 'O';
+            opacity: 0.2;
+            font-family: 'Quicksand';
+            font-weight: 700;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        .active-turn-glow {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        .timer-circle {
+            transition: stroke-dashoffset 1s linear;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col font-body-md overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm flex justify-between items-center px-container-padding py-4">
+<div class="flex items-center gap-8">
+<span class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed">NeonXO</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-on-surface-variant font-label-bold hover:text-primary transition-colors duration-200" href="#">Lobby</a>
+<a class="text-on-surface-variant font-label-bold hover:text-primary transition-colors duration-200" href="#">Leaderboard</a>
+<a class="text-on-surface-variant font-label-bold hover:text-primary transition-colors duration-200" href="#">History</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">language</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
+<div class="h-10 w-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border-2 border-primary">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUbL8xwJ9sY8PNYGJMYDMpS6v9ecvBFM7qgi8TNLgkFK3QgOLOizew28ZFWBUnaC3oP27_7cz637R4DFpzS4XA1lfYEg6oRPN0oSoRMb2ZydkSHGu7a6CI-O3y0BBnlGN3nAqiPNAViTnjXJR0XkP0mQE9xUxVRh_C1iK6sPn_PMLJdTGjfrEeb400SJ4BvaEuK_dKysNRvPW1aQfAIuDo4c7Nlfh8WyJh8Hn4jg9AgfHW5SBKmKHHvcBE3B5WyWfmEiN_vULlpqk"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 pt-24 pb-12 px-container-padding flex flex-col items-center justify-center relative overflow-hidden">
+<div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-element-gap items-start h-full">
+<!-- Left Side: Player Info & Timer -->
+<div class="lg:col-span-3 flex flex-col gap-6 order-2 lg:order-1">
+<!-- Current Player Card -->
+<div class="glass-panel rounded-3xl p-6 shadow-xl border-2 border-primary active-turn-glow">
+<div class="flex items-center gap-4 mb-4">
+<div class="relative">
+<img alt="Player" class="w-16 h-16 rounded-2xl bg-primary-fixed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA96QDCOMN-7p6kC0hxlX6PZVKzix7med3UQbC5hAWj91KKB0vEtPRO3ChQYBtLGxAyXGFHttOxuNsGZYdaEmDXKwA0KJ1fdNoKPtTHBol5ChYALIYUfFDZKtSzzbIA82EcfG-21Z3bvRAmb_KNMA-oA-ZC7j46EZNzAUbgPTQpA-0EUuMSwnZJE3R2w5KKimFY0HqgrKov2Mvl9-pyof2_xSirKSnrkXUdI6yAp0BA2D684s29GunlNzchF_vyrnYgL93DMkmhpdw"/>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-surface rounded-full"></div>
+</div>
+<div>
+<h4 class="font-headline-md text-primary">You</h4>
+<div class="flex items-center gap-1">
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full text-[10px] font-bold">LVL 42</span>
+</div>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-display-game-piece text-4xl game-piece-x">X</span>
+<div class="text-right">
+<p class="text-xs text-on-surface-variant uppercase tracking-wider">Score</p>
+<p class="text-2xl font-bold">12</p>
+</div>
+</div>
+</div>
+<!-- Timer Circular -->
+<div class="glass-panel rounded-3xl p-8 flex flex-col items-center justify-center relative shadow-lg">
+<svg class="w-32 h-32 transform -rotate-90">
+<circle class="text-outline-variant/20" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-secondary timer-circle" cx="64" cy="64" fill="transparent" id="timer-progress" r="58" stroke="currentColor" stroke-dasharray="364.4" stroke-dashoffset="100" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+<span class="font-headline-lg text-4xl text-secondary" id="countdown">24s</span>
+</div>
+<p class="mt-4 font-label-bold text-on-surface-variant uppercase text-xs tracking-widest">Time Remaining</p>
+</div>
+</div>
+<!-- Center: Game Board -->
+<div class="lg:col-span-6 flex flex-col items-center justify-center order-1 lg:order-2">
+<div class="grid grid-cols-3 gap-game-board-gap w-full aspect-square max-w-[520px] p-4 glass-panel rounded-[32px] shadow-2xl">
+<!-- Tile 1 -->
+<div class="tile-hover-x relative bg-surface-container-low rounded-2xl flex items-center justify-center cursor-pointer transition-all hover:scale-105 hover:bg-surface-container hover:shadow-lg active:bg-surface-container-highest group overflow-hidden">
+<span class="font-display-game-piece text-headline-lg lg:text-display-game-piece game-piece-x opacity-100 transition-transform duration-300">X</span>
+</div>
+<!-- Tile 2 -->
+<div class="tile-hover-o relative bg-surface-container-low rounded-2xl flex items-center justify-center cursor-pointer transition-all hover:scale-105 hover:bg-surface-container hover:shadow-lg active:bg-surface-container-highest group"></div>
+<!-- Tile 3 -->
+<div class="tile-hover-x relative bg-surface-container-low rounded-2xl flex items-center justify-center cursor-pointer transition-all hover:scale-105 hover:bg-surface-container hover:shadow-lg active:bg-surface-container-highest group"></div>
+<!-- Tile 4 -->
+<div class="tile-hover-o relative bg-surface-container-low rounded-2xl flex items-center justify-center cursor-pointer transition-all hover:scale-105 hover:bg-surface-container hover:shadow-lg active:bg-surface-container-highest group overflow-hidden">
+<span class="font-display-game-piece text-headline-lg lg:text-display-game-piece game-piece-o opacity-100 transition-transform duration-300">O</span>
+</div>
+<!-- Tile 5 -->
+<div class="tile-hover-x relative bg-surface-container-low rounded-2xl flex items-center justify-center cursor-pointer transition-all hover:scale-105 hover:bg-surface-container hover:shadow-lg active:bg-surface-container-highest group overflow-hidden">
+<span class="font-display-game-piece text-headline-lg lg:text-display-game-piece game-piece-x opacity-100 transition-transform duration-300">X</span>
+</div>
+<!-- Tile 6 -->
+<div class="tile-hover-o relative bg-surface-container-low rounded-2xl flex items-center justify-center cursor-pointer transition-all hover:scale-105 hover:bg-surface-container hover:shadow-lg active:bg-surface-container-highest group"></div>
+<!-- Tile 7 -->
+<div class="tile-hover-x relative bg-surface-container-low rounded-2xl flex items-center justify-center cursor-pointer transition-all hover:scale-105 hover:bg-surface-container hover:shadow-lg active:bg-surface-container-highest group"></div>
+<!-- Tile 8 -->
+<div class="tile-hover-o relative bg-surface-container-low rounded-2xl flex items-center justify-center cursor-pointer transition-all hover:scale-105 hover:bg-surface-container hover:shadow-lg active:bg-surface-container-highest group overflow-hidden">
+<span class="font-display-game-piece text-headline-lg lg:text-display-game-piece game-piece-o opacity-100 transition-transform duration-300 scale-110">O</span>
+</div>
+<!-- Tile 9 -->
+<div class="tile-hover-x relative bg-surface-container-low rounded-2xl flex items-center justify-center cursor-pointer transition-all hover:scale-105 hover:bg-surface-container hover:shadow-lg active:bg-surface-container-highest group"></div>
+</div>
+<div class="mt-12 w-full flex justify-center">
+<button class="group flex items-center gap-3 px-12 py-5 bg-error text-on-error rounded-full font-label-bold shadow-xl hover:shadow-error/30 hover:scale-105 transition-all">
+<span class="material-symbols-outlined group-hover:rotate-12 transition-transform">flag</span>
+                        Đầu hàng
+                    </button>
+</div>
+</div>
+<!-- Right Side: Opponent Info & Chat -->
+<div class="lg:col-span-3 flex flex-col gap-6 order-3">
+<!-- Opponent Card -->
+<div class="glass-panel rounded-3xl p-6 shadow-md border border-outline-variant/10 opacity-80">
+<div class="flex items-center gap-4 mb-4">
+<div class="relative">
+<img alt="Opponent" class="w-16 h-16 rounded-2xl bg-secondary-fixed" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLnPZ0PnO0dTZjb1gwSPFULB7HLQVDKUcnd-z_hosQ5lgZ5Wh9TDIv3eKRMH_0fQ9xsnqmeS63_VKgfJy-SpMokL8vuTsRVxL329Ogb1T9VqdghyZ4gAeopFj9WVgqHZ1kbXlpASeUfRjLml4Vom8AQepMxw-9yDVm6vX1mmqP5S4hJK1GD-WIiqzpxBG2eq9uD8-GsC_Nu6iGeFQEfTw9ssLTErRQm9FnC2lImGiqVwA_HeAspuXjRh5e7wjkssrUAsllyspHhKw"/>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-surface rounded-full"></div>
+</div>
+<div>
+<h4 class="font-headline-md text-on-surface">NeonShadow</h4>
+<div class="flex items-center gap-1">
+<span class="bg-tertiary-container text-on-tertiary-container px-2 py-0.5 rounded-full text-[10px] font-bold">MASTER</span>
+</div>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-display-game-piece text-4xl game-piece-o">O</span>
+<div class="text-right">
+<p class="text-xs text-on-surface-variant uppercase tracking-wider">Score</p>
+<p class="text-2xl font-bold">14</p>
+</div>
+</div>
+</div>
+<!-- Match Chat -->
+<div class="glass-panel rounded-3xl p-6 flex flex-col h-[400px] shadow-lg">
+<div class="flex items-center justify-between mb-4">
+<h5 class="font-label-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">chat_bubble</span>
+                            Match Chat
+                        </h5>
+<span class="text-[10px] bg-surface-container-high px-2 py-1 rounded-full text-on-surface-variant font-bold">LIVE</span>
+</div>
+<div class="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
+<div class="flex flex-col items-start">
+<span class="text-[10px] font-bold text-on-surface-variant mb-1 ml-1">NeonShadow</span>
+<div class="bg-surface-container px-4 py-2 rounded-2xl rounded-tl-none text-sm max-w-[90%]">
+                                Nice move! 😲
+                            </div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] font-bold text-primary mb-1 mr-1">You</span>
+<div class="bg-primary text-on-primary px-4 py-2 rounded-2xl rounded-tr-none text-sm max-w-[90%]">
+                                Thanks! Just getting started.
+                            </div>
+</div>
+<div class="flex flex-col items-start">
+<span class="text-[10px] font-bold text-on-surface-variant mb-1 ml-1">NeonShadow</span>
+<div class="bg-surface-container px-4 py-2 rounded-2xl rounded-tl-none text-sm max-w-[90%]">
+                                We'll see about that...
+                            </div>
+</div>
+</div>
+<div class="mt-4 relative">
+<input class="w-full bg-surface-container-low border-none rounded-full px-5 py-3 text-sm focus:ring-2 focus:ring-primary transition-all" placeholder="Type a message..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-base">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-6 px-container-padding flex justify-between items-center bg-surface-dim/50 dark:bg-inverse-surface/50 backdrop-blur-sm border-t border-outline-variant/10 mt-auto">
+<div class="flex items-center gap-6">
+<span class="font-body-md text-on-surface-variant">© 2024 NeonXO Gaming. All Rights Reserved.</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="font-body-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">Terms</a>
+<a class="font-body-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">Privacy</a>
+<a class="font-body-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">Patch Notes</a>
+</div>
+</footer>
+<script>
+        // Micro-interactions for Timer
+        let timeLeft = 30;
+        const countdownEl = document.getElementById('countdown');
+        const progressEl = document.getElementById('timer-progress');
+        const radius = 58;
+        const circumference = 2 * Math.PI * radius;
+
+        function updateTimer() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                countdownEl.innerText = `${timeLeft}s`;
+                
+                const offset = circumference - (timeLeft / 30) * circumference;
+                progressEl.style.strokeDashoffset = offset;
+
+                if (timeLeft < 10) {
+                    countdownEl.classList.add('text-error');
+                    progressEl.classList.remove('text-secondary');
+                    progressEl.classList.add('text-error');
+                }
+            } else {
+                // Reset for demo purposes
+                timeLeft = 30;
+                countdownEl.classList.remove('text-error');
+                progressEl.classList.remove('text-error');
+                progressEl.classList.add('text-secondary');
+            }
+        }
+
+        setInterval(updateTimer, 1000);
+    </script>
+</body></html>

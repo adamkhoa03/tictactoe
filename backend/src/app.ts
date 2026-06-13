@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import authRouter from './infrastructure/webserver/routes/auth.routes';
+import roomRouter from './infrastructure/webserver/routes/room.routes';
 
 dotenv.config();
 
@@ -23,5 +24,6 @@ app.get('/api/health', (_req, res) => {
 
 // REST Routes
 app.use('/api/auth', authRouter);
+app.use('/api/rooms', roomRouter);
 
 export default app;
