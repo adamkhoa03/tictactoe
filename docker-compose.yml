@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: tictactoe-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: tictactoe
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    image: tictactoe-backend:latest
+    build:
+      context: ./backend
+    container_name: tictactoe-backend
+    depends_on:
+      - mongo
+    ports:
+      - '5000:5000'
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/tictactoe
+      FRONTEND_URL: http://localhost:3000
+
+  frontend:
+    image: tictactoe-frontend:latest
+    build:
+      context: ./frontend
+    container_name: tictactoe-frontend
+    depends_on:
+      - backend
+    ports:
+      - '3000:80'
+    environment:
+      VITE_SOCKET_URL: ''
+
+volumes:
+  mongo-data:
+    name: tictactoe-mongo-data
