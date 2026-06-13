@@ -12,7 +12,7 @@ export class AuthController {
     private registerUser: RegisterUser,
     private loginUser: LoginUser,
     private userRepository: IUserRepository
-  ) {}
+  ) { }
 
   register = async (req: Request, res: Response): Promise<void> => {
     try {

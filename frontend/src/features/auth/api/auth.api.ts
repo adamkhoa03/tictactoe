@@ -15,7 +15,9 @@ export const authApi = {
 
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.message || i18n.t("login_failed"));
+      const err: any = new Error();
+      err.status = response.status;
+      throw err;
     }
     return data;
   },

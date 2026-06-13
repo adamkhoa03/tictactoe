@@ -38,6 +38,7 @@ export default {
 
   // Error translations
   loginFailed: "Login failed",
+  invalidCredentials: "Incorrect username or password",
   registerFailed: "Registration failed",
   authFailed: "Unable to authenticate",
   logoutFailed: "Logout failed",

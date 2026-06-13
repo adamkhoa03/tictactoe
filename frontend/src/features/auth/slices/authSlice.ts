@@ -24,6 +24,9 @@ export const loginUser = createAsyncThunk(
         return rejectWithValue(response.message || i18n.t("loginFailed"));
       }
     } catch (error: any) {
+      if (error.status === 401) {
+        return rejectWithValue(i18n.t("invalidCredentials"));
+      }
       return rejectWithValue(error.message || i18n.t("serverConnectionError"));
     }
   }
@@ -98,7 +101,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
+
       // Register
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;

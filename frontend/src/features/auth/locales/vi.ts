@@ -38,6 +38,7 @@ export default {
 
   // Error translations
   loginFailed: "Đăng nhập thất bại",
+  invalidCredentials: "Tên đăng nhập hoặc mật khẩu không đúng",
   registerFailed: "Đăng ký thất bại",
   authFailed: "Không thể xác thực",
   logoutFailed: "Đăng xuất thất bại",

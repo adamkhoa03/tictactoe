@@ -49,7 +49,7 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <Card className="text-center transition-all duration-500 hover:shadow-2xl">
+    <Card className="px-4 md:p-4 text-center transition-all duration-500 hover:shadow-2xl">
       {/* Brand / Logo Area */}
       <div className="mb-6 flex flex-col items-center select-none">
         <div className="relative mb-6">
@@ -169,7 +169,7 @@ export const RegisterPage: React.FC = () => {
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full flex items-center justify-center gap-2 group mt-6"
+          className="w-full flex items-center justify-center gap-2 group mt-6 text-white"
           disabled={isLoading}
         >
           <span>{isLoading ? t("loading") : t("register")}</span>

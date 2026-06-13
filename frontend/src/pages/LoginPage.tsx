@@ -48,7 +48,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <Card className="text-center transition-all duration-500 hover:shadow-2xl">
+    <Card className="px-4 md:p-4 text-center transition-all duration-500 hover:shadow-2xl">
       {/* Brand / Logo Area */}
       <div className="mb-8 flex flex-col items-center select-none">
         <div className="relative mb-6">

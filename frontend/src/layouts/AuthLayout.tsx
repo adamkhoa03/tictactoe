@@ -51,7 +51,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-grow flex items-center justify-center relative z-10 px-6 py-10">
+      <main className="flex-grow flex items-center justify-center relative z-10">
         <div className="w-full max-w-[460px] perspective-[1000px]">
           {children}
         </div>
