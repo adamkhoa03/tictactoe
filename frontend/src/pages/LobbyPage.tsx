@@ -1,13 +1,17 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/store/hooks";
 import { UserProfileWidget } from "@/features/game/components/UserProfileWidget";
 import { RoomListPanel } from "@/features/game/components/RoomListPanel";
 import { OnlinePlayersPanel } from "@/features/game/components/OnlinePlayersPanel";
 import { CreateRoomModal } from "@/features/game/components/CreateRoomModal";
+import { useSocket, useSocketEvent } from "@/features/socket/hooks/useSocket";
 
 export const LobbyPage: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const socket = useSocket();
   const { user } = useAppSelector((state) => state.auth);
   const isConnected = useAppSelector((state) => state.socket.isConnected);
   const socketError = useAppSelector((state) => state.socket.error);
@@ -17,31 +21,98 @@ export const LobbyPage: React.FC = () => {
   const [joiningRoomId, setJoiningRoomId] = useState<string | null>(null);
   const [isQuickMatching, setIsQuickMatching] = useState(false);
 
+  const [lobbyPlayers, setLobbyPlayers] = useState<any[]>([]);
+  const [totalOnline, setTotalOnline] = useState<number>(0);
+  const [activeInvite, setActiveInvite] = useState<{ roomId: string, inviterUsername: string } | null>(null);
+
+  const pendingInviteUserId = useRef<string | null>(null);
+
+  // Request players list on connect or mount
+  useEffect(() => {
+    if (isConnected) {
+      socket.emit("get_lobby_players");
+    }
+  }, [isConnected, socket]);
+
+  // Listen to lobby players updates
+  useSocketEvent<any>("lobby_players", (data) => {
+    setLobbyPlayers(data.players);
+    setTotalOnline(data.totalOnline);
+  });
+
+  // Listen to game invitations
+  useSocketEvent<any>("receive_invite", (data) => {
+    setActiveInvite(data);
+  });
+
+  // Navigate to GamePage when game start event is received
+  useSocketEvent<any>("game_start", (data) => {
+    navigate(`/game/${data.room.id}`);
+  });
+
+  useSocketEvent<any>("match_found", (data) => {
+    setIsQuickMatching(false);
+    navigate(`/game/${data.roomId}`);
+  });
+
+  // Handle room creation state redirect from socket
+  useSocketEvent<any>("room_state", (data) => {
+    setIsCreating(false);
+    setIsCreateModalOpen(false);
+
+    if (pendingInviteUserId.current) {
+      socket.emit("invite_player", { roomId: data.room.id, targetUserId: pendingInviteUserId.current });
+      pendingInviteUserId.current = null;
+    }
+
+    navigate(`/game/${data.room.id}`);
+  });
+
   const handleJoinRoom = useCallback((roomId: string) => {
     setJoiningRoomId(roomId);
-    // TODO: dispatch socket join_room event
-    setTimeout(() => setJoiningRoomId(null), 1500); // placeholder
-  }, []);
+    if (!socket.connected) {
+      socket.connect();
+    }
+    socket.emit("join_room", { roomId });
+    setTimeout(() => setJoiningRoomId(null), 3000);
+  }, [socket]);
 
   const handleQuickMatch = useCallback(() => {
     setIsQuickMatching(true);
-    // TODO: dispatch socket find_random_room event
-    setTimeout(() => setIsQuickMatching(false), 4000); // placeholder
-  }, []);
+    if (!socket.connected) {
+      socket.connect();
+    }
+    socket.emit("quick_match");
+  }, [socket]);
 
   const handleCancelQuickMatch = useCallback(() => {
     setIsQuickMatching(false);
-    // TODO: cancel socket matchmaking
-  }, []);
+    socket.emit("cancel_quick_match");
+  }, [socket]);
 
-  const handleCreateRoom = useCallback((_boardSize: number, _winCondition: number) => {
+  const handleInvitePlayer = useCallback((targetUserId: string) => {
+    pendingInviteUserId.current = targetUserId;
     setIsCreating(true);
-    // TODO: dispatch socket create_room event
-    setTimeout(() => {
-      setIsCreating(false);
-      setIsCreateModalOpen(false);
-    }, 1200); // placeholder
-  }, []);
+    if (!socket.connected) {
+      socket.connect();
+    }
+    // Create room with default configurations to invite player
+    socket.emit("create_room", { boardSize: 15, winCondition: 5 });
+  }, [socket]);
+
+  useEffect(() => {
+    return () => {
+      socket.emit("cancel_quick_match");
+    };
+  }, [socket]);
+
+  const handleCreateRoom = useCallback((boardSize: number, winCondition: number) => {
+    setIsCreating(true);
+    if (!socket.connected) {
+      socket.connect();
+    }
+    socket.emit("create_room", { boardSize, winCondition });
+  }, [socket]);
 
   const getConnectionBanner = () => {
     if (socketError) {
@@ -255,7 +326,13 @@ export const LobbyPage: React.FC = () => {
 
         {/* === RIGHT COLUMN: Online players === */}
         <aside className="lg:col-span-3">
-          <OnlinePlayersPanel totalOnline={142} />
+          <OnlinePlayersPanel
+            players={lobbyPlayers}
+            totalOnline={totalOnline}
+            currentUserId={user?.id}
+            showInviteButton={true}
+            onInvite={handleInvitePlayer}
+          />
         </aside>
       </div>
 
@@ -266,6 +343,36 @@ export const LobbyPage: React.FC = () => {
         onCreate={handleCreateRoom}
         isCreating={isCreating}
       />
+
+      {/* Lời mời chơi game */}
+      {activeInvite && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm animate-fadeIn">
+          <div className="glass-panel max-w-sm w-full p-6 rounded-[24px] border border-white/20 shadow-2xl text-center">
+            <span className="material-symbols-outlined text-primary text-[44px] mb-3">mail</span>
+            <h3 className="font-quicksand font-bold text-headline-sm text-on-surface mb-2">Lời mời chơi game</h3>
+            <p className="font-nunito text-on-surface-variant text-sm mb-6">
+              Người chơi <strong>{activeInvite.inviterUsername}</strong> mời bạn tham gia phòng đấu cùng họ!
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  navigate(`/game/${activeInvite.roomId}`);
+                  setActiveInvite(null);
+                }}
+                className="flex-1 py-2.5 bg-primary text-on-primary font-quicksand font-bold text-xs rounded-xl shadow-md hover:scale-[1.02] active:scale-95 transition-all"
+              >
+                Đồng ý
+              </button>
+              <button
+                onClick={() => setActiveInvite(null)}
+                className="flex-1 py-2.5 border border-outline-variant/40 text-on-surface-variant font-quicksand font-bold text-xs rounded-xl hover:bg-red-500/5 hover:text-error hover:border-red-400/40 transition-all"
+              >
+                Từ chối
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

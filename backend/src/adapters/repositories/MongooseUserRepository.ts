@@ -35,6 +35,11 @@ export class MongooseUserRepository implements IUserRepository {
     return this.toEntity(savedDoc);
   }
 
+  async findAll(): Promise<User[]> {
+    const userDocs = await UserModel.find({});
+    return userDocs.map((doc) => this.toEntity(doc));
+  }
+
   private toEntity(doc: any): User {
     return {
       id: doc._id.toString(),

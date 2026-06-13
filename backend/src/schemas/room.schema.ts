@@ -28,5 +28,12 @@ export const joinRoomSchema = z.object({
   roomId: z.string().min(1, 'Mã phòng không được để trống'),
 });
 
+export const makeMoveSchema = z.object({
+  roomId: z.string().min(1, 'Mã phòng không được để trống'),
+  row: z.number().min(0),
+  col: z.number().min(0),
+});
+
 export type CreateRoomInput = z.infer<typeof createRoomSchema>;
 export type JoinRoomInput = z.infer<typeof joinRoomSchema>;
+export type MakeMoveInput = z.infer<typeof makeMoveSchema>;

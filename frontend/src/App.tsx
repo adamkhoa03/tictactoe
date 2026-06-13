@@ -6,6 +6,7 @@ import { MainLayout } from "./layouts/MainLayout";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LobbyPage } from "./pages/LobbyPage";
+import { GamePage } from "./pages/GamePage";
 import { checkAuthStatus } from "./features/auth/slices/authSlice";
 
 // Route guard for authenticated areas
@@ -73,6 +74,16 @@ export const App: React.FC = () => {
             <ProtectedRoute>
               <MainLayout>
                 <LobbyPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:roomId"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <GamePage />
               </MainLayout>
             </ProtectedRoute>
           }

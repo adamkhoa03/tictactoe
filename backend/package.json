@@ -4,8 +4,8 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "kill": "powershell -ExecutionPolicy Bypass -Command \"$pids = Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | Where-Object { $_ -gt 4 } | Select-Object -Unique; if ($pids) { Stop-Process -Id $pids -Force -ErrorAction SilentlyContinue }\"",
-    "predev": "npm run kill",
+    "kill": "powershell -ExecutionPolicy Bypass -Command \"Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | Get-Process -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue; exit 0\"",
+    "predev": "npm.cmd run kill",
     "dev": "nodemon src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js"

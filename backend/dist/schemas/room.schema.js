@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.joinRoomSchema = exports.createRoomSchema = void 0;
+exports.makeMoveSchema = exports.joinRoomSchema = exports.createRoomSchema = void 0;
 const zod_1 = require("zod");
 exports.createRoomSchema = zod_1.z.object({
     boardSize: zod_1.z.union([
@@ -29,4 +29,9 @@ exports.createRoomSchema = zod_1.z.object({
 });
 exports.joinRoomSchema = zod_1.z.object({
     roomId: zod_1.z.string().min(1, 'Mã phòng không được để trống'),
+});
+exports.makeMoveSchema = zod_1.z.object({
+    roomId: zod_1.z.string().min(1, 'Mã phòng không được để trống'),
+    row: zod_1.z.number().min(0),
+    col: zod_1.z.number().min(0),
 });

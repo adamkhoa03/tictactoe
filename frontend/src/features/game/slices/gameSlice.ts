@@ -36,6 +36,7 @@ export interface PublicRoom {
 export interface GameState {
   currentRoom: Room | null;
   waitingRooms: PublicRoom[];
+  timeLeft: number;
   isLoading: boolean;
   error: string | null;
 }
@@ -43,6 +44,7 @@ export interface GameState {
 const initialState: GameState = {
   currentRoom: null,
   waitingRooms: [],
+  timeLeft: 30,
   isLoading: false,
   error: null,
 };
@@ -63,12 +65,16 @@ const gameSlice = createSlice({
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
+    setTimeLeft: (state, action: PayloadAction<number>) => {
+      state.timeLeft = action.payload;
+    },
     clearGame: (state) => {
       state.currentRoom = null;
+      state.timeLeft = 30;
       state.error = null;
     },
   },
 });
 
-export const { setCurrentRoom, setWaitingRooms, setLoading, setError, clearGame } = gameSlice.actions;
+export const { setCurrentRoom, setWaitingRooms, setLoading, setError, setTimeLeft, clearGame } = gameSlice.actions;
 export default gameSlice.reducer;

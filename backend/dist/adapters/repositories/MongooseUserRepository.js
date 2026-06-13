@@ -34,6 +34,10 @@ class MongooseUserRepository {
         const savedDoc = await userDoc.save();
         return this.toEntity(savedDoc);
     }
+    async findAll() {
+        const userDocs = await User_1.UserModel.find({});
+        return userDocs.map((doc) => this.toEntity(doc));
+    }
     toEntity(doc) {
         return {
             id: doc._id.toString(),
