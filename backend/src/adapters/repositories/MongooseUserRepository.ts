@@ -30,6 +30,9 @@ export class MongooseUserRepository implements IUserRepository {
       losses: user.losses || 0,
       draws: user.draws || 0,
       gamesPlayed: user.gamesPlayed || 0,
+      eloRating: user.eloRating || 1200,
+      winStreak: user.winStreak || 0,
+      maxWinStreak: user.maxWinStreak || 0,
     });
     const savedDoc = await userDoc.save();
     return this.toEntity(savedDoc);
@@ -50,6 +53,9 @@ export class MongooseUserRepository implements IUserRepository {
       losses: doc.losses,
       draws: doc.draws,
       gamesPlayed: doc.gamesPlayed,
+      eloRating: doc.eloRating,
+      winStreak: doc.winStreak,
+      maxWinStreak: doc.maxWinStreak,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
     };

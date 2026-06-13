@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/store/hooks";
-import { PublicRoom } from "@/features/game/slices/gameSlice";
 import { RoomCard } from "./RoomCard";
 
 interface RoomListPanelProps {
@@ -11,37 +10,6 @@ interface RoomListPanelProps {
 }
 
 type FilterMode = "all" | "3" | "6" | "9" | "11" | "15";
-
-const MOCK_ROOMS: PublicRoom[] = [
-  {
-    id: "mock-1",
-    boardSize: 3,
-    winCondition: 3,
-    hostUsername: "Kai_Zenith",
-    createdAt: new Date(Date.now() - 90000).toISOString(),
-  },
-  {
-    id: "mock-2",
-    boardSize: 6,
-    winCondition: 4,
-    hostUsername: "MoonLight",
-    createdAt: new Date(Date.now() - 240000).toISOString(),
-  },
-  {
-    id: "mock-3",
-    boardSize: 9,
-    winCondition: 5,
-    hostUsername: "StormWalker",
-    createdAt: new Date(Date.now() - 45000).toISOString(),
-  },
-  {
-    id: "mock-4",
-    boardSize: 15,
-    winCondition: 5,
-    hostUsername: "NeonBlade",
-    createdAt: new Date(Date.now() - 600000).toISOString(),
-  },
-];
 
 export const RoomListPanel: React.FC<RoomListPanelProps> = ({
   onJoinRoom,
@@ -53,8 +21,8 @@ export const RoomListPanel: React.FC<RoomListPanelProps> = ({
   const [filter, setFilter] = useState<FilterMode>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Use real rooms if available, fallback to mocks for preview
-  const rooms = waitingRooms.length > 0 ? waitingRooms : MOCK_ROOMS;
+  // Use real rooms from the server
+  const rooms = waitingRooms;
 
   const filteredRooms = rooms.filter((room) => {
     const matchesFilter = filter === "all" || room.boardSize === Number(filter);
@@ -126,11 +94,10 @@ export const RoomListPanel: React.FC<RoomListPanelProps> = ({
             key={value}
             id={`filter-${value}`}
             onClick={() => setFilter(value)}
-            className={`px-4 py-1.5 rounded-full font-quicksand font-bold text-label-bold transition-all duration-200 ${
-              filter === value
-                ? "bg-primary text-on-primary shadow-md shadow-primary/20"
-                : "glass-panel text-on-surface-variant hover:text-primary border border-outline-variant/30 hover:border-primary/30"
-            }`}
+            className={`px-4 py-1.5 rounded-full font-quicksand font-bold text-label-bold transition-all duration-200 ${filter === value
+              ? "bg-primary text-on-primary shadow-md shadow-primary/20"
+              : "glass-panel text-on-surface-variant hover:text-primary border border-outline-variant/30 hover:border-primary/30"
+              }`}
           >
             {label}
           </button>

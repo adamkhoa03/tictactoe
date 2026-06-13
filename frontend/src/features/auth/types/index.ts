@@ -3,8 +3,14 @@ export interface User {
   username: string;
   email: string;
   eloRating?: number;
-  matchesPlayed?: number;
-  matchesWon?: number;
+  wins?: number;
+  losses?: number;
+  draws?: number;
+  gamesPlayed?: number;
+  winStreak?: number;
+  maxWinStreak?: number;
+  matchesPlayed?: number; // compat
+  matchesWon?: number; // compat
 }
 
 export interface AuthState {

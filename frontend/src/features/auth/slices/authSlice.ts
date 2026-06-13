@@ -83,6 +83,18 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    updateUser: (state, action: PayloadAction<User>) => {
+      if (state.user) {
+        const gamesPlayed = action.payload.gamesPlayed ?? state.user.gamesPlayed ?? 0;
+        const wins = action.payload.wins ?? state.user.wins ?? 0;
+        state.user = {
+          ...state.user,
+          ...action.payload,
+          matchesPlayed: gamesPlayed,
+          matchesWon: wins,
+        };
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -94,7 +106,12 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action: PayloadAction<AuthResponseData>) => {
         state.isLoading = false;
         state.isAuthenticated = true;
-        state.user = action.payload.user;
+        const u = action.payload.user;
+        state.user = {
+          ...u,
+          matchesPlayed: u.gamesPlayed ?? u.matchesPlayed ?? 0,
+          matchesWon: u.wins ?? u.matchesWon ?? 0,
+        };
         state.token = action.payload.token || null;
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -110,7 +127,12 @@ const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action: PayloadAction<AuthResponseData>) => {
         state.isLoading = false;
         state.isAuthenticated = true;
-        state.user = action.payload.user;
+        const u = action.payload.user;
+        state.user = {
+          ...u,
+          matchesPlayed: u.gamesPlayed ?? u.matchesPlayed ?? 0,
+          matchesWon: u.wins ?? u.matchesWon ?? 0,
+        };
         state.token = action.payload.token || null;
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -144,7 +166,12 @@ const authSlice = createSlice({
       .addCase(checkAuthStatus.fulfilled, (state, action: PayloadAction<{ user: User }>) => {
         state.isLoading = false;
         state.isAuthenticated = true;
-        state.user = action.payload.user;
+        const u = action.payload.user;
+        state.user = {
+          ...u,
+          matchesPlayed: u.gamesPlayed ?? u.matchesPlayed ?? 0,
+          matchesWon: u.wins ?? u.matchesWon ?? 0,
+        };
         state.isInitialized = true;
       })
       .addCase(checkAuthStatus.rejected, (state) => {
@@ -156,5 +183,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, updateUser } = authSlice.actions;
 export default authSlice.reducer;

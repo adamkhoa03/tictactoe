@@ -10,6 +10,7 @@ interface GameOverModalProps {
   opponentName: string;
   onPlayAgain: () => void;
   onLeaveRoom: () => void;
+  onClose?: () => void;
 }
 
 export const GameOverModal: React.FC<GameOverModalProps> = ({
@@ -20,6 +21,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   opponentName,
   onPlayAgain,
   onLeaveRoom,
+  onClose,
 }) => {
   const { t } = useTranslation();
 
@@ -80,10 +82,21 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-fadeIn">
       <div
-        className={`glass-panel max-w-md w-full p-8 rounded-[32px] border shadow-2xl text-center animate-scaleIn ${config.shadowClass}`}
+        className={`relative glass-panel max-w-md w-full p-8 rounded-[32px] border shadow-2xl text-center animate-scaleIn ${config.shadowClass}`}
         role="dialog"
         aria-modal="true"
       >
+        {/* Close Button */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-5 right-5 text-on-surface-variant hover:text-on-surface transition-colors"
+            aria-label="Close"
+          >
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        )}
+
         {/* Result Icon */}
         <div
           className={`w-16 h-16 rounded-3xl border flex items-center justify-center mx-auto mb-5 transition-transform duration-500 hover:scale-110 ${config.bgIconClass}`}
@@ -110,6 +123,14 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           >
             {t("leaveLobby", "Về Lobby")}
           </button>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="flex-1 order-3 px-6 py-3.5 rounded-full bg-surface-container-high/60 hover:bg-surface-container-highest border border-outline-variant/20 font-quicksand font-bold text-xs text-on-surface transition-all active:scale-95"
+            >
+              Đóng
+            </button>
+          )}
           <button
             onClick={onPlayAgain}
             className="flex-1 order-1 sm:order-2 px-6 py-3.5 rounded-full bg-primary hover:bg-primary-container text-on-primary font-quicksand font-bold text-xs shadow-md shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95"

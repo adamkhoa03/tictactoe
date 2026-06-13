@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logoutUser } from "@/features/auth/slices/authSlice";
@@ -15,6 +15,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
+  const [searchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "lobby";
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
@@ -35,7 +37,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <div className="flex items-center gap-8">
           <Link to="/lobby" className="flex items-center gap-2 no-underline">
             <span className="font-quicksand text-headline-md font-bold text-primary tracking-tight">
-              NeonXO
+              {t("appName")}
             </span>
           </Link>
 
@@ -43,24 +45,33 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <Link
               to="/lobby"
               id="nav-lobby"
-              className="px-4 py-2 rounded-xl font-quicksand font-bold text-label-bold text-primary bg-primary/10 transition-all no-underline"
+              className={`px-4 py-2 rounded-xl font-quicksand font-bold text-label-bold transition-all no-underline ${activeTab === "lobby"
+                ? "text-primary bg-primary/10"
+                : "text-on-surface-variant hover:text-primary hover:bg-primary/5"
+                }`}
             >
               {t("lobby")}
             </Link>
-            <a
-              href="#leaderboard"
+            <Link
+              to="/lobby?tab=leaderboard"
               id="nav-leaderboard"
-              className="px-4 py-2 rounded-xl font-quicksand font-bold text-label-bold text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-all no-underline"
+              className={`px-4 py-2 rounded-xl font-quicksand font-bold text-label-bold transition-all no-underline ${activeTab === "leaderboard"
+                ? "text-primary bg-primary/10"
+                : "text-on-surface-variant hover:text-primary hover:bg-primary/5"
+                }`}
             >
               {t("leaderboard")}
-            </a>
-            <a
-              href="#history"
+            </Link>
+            <Link
+              to="/lobby?tab=history"
               id="nav-history"
-              className="px-4 py-2 rounded-xl font-quicksand font-bold text-label-bold text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-all no-underline"
+              className={`px-4 py-2 rounded-xl font-quicksand font-bold text-label-bold transition-all no-underline ${activeTab === "history"
+                ? "text-primary bg-primary/10"
+                : "text-on-surface-variant hover:text-primary hover:bg-primary/5"
+                }`}
             >
               {t("history")}
-            </a>
+            </Link>
           </nav>
         </div>
 
@@ -74,22 +85,20 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <button
               onClick={() => i18n.changeLanguage("vi")}
               id="lang-vi"
-              className={`px-3 py-1 rounded-full text-label-bold font-quicksand font-bold text-[12px] transition-all duration-300 ${
-                currentLanguage.startsWith("vi")
-                  ? "bg-primary text-on-primary shadow-md"
-                  : "text-on-surface-variant hover:bg-surface-container-high"
-              }`}
+              className={`px-3 py-1 rounded-full text-label-bold font-quicksand font-bold text-[12px] transition-all duration-300 ${currentLanguage.startsWith("vi")
+                ? "bg-primary text-on-primary shadow-md"
+                : "text-on-surface-variant hover:bg-surface-container-high"
+                }`}
             >
               VN
             </button>
             <button
               onClick={() => i18n.changeLanguage("en")}
               id="lang-en"
-              className={`px-3 py-1 rounded-full text-label-bold font-quicksand font-bold text-[12px] transition-all duration-300 ${
-                currentLanguage.startsWith("en")
-                  ? "bg-primary text-on-primary shadow-md"
-                  : "text-on-surface-variant hover:bg-surface-container-high"
-              }`}
+              className={`px-3 py-1 rounded-full text-label-bold font-quicksand font-bold text-[12px] transition-all duration-300 ${currentLanguage.startsWith("en")
+                ? "bg-primary text-on-primary shadow-md"
+                : "text-on-surface-variant hover:bg-surface-container-high"
+                }`}
             >
               EN
             </button>
@@ -128,24 +137,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <main className="flex-1 pt-16 relative z-10">
         {children}
       </main>
-
-      {/* Footer */}
-      <footer className="relative z-10 w-full py-5 px-6 md:px-8 flex flex-col md:flex-row justify-between items-center gap-3 border-t border-outline-variant/10 text-on-surface-variant/60 mt-auto">
-        <p className="font-nunito text-label-status text-[12px]">
-          © 2024 NeonXO Gaming. All Rights Reserved.
-        </p>
-        <div className="flex gap-5 font-quicksand font-bold text-[12px]">
-          <a href="#terms" className="hover:text-primary transition-colors cursor-pointer no-underline">
-            {t("terms")}
-          </a>
-          <a href="#privacy" className="hover:text-primary transition-colors cursor-pointer no-underline">
-            {t("privacy")}
-          </a>
-          <a href="#help" className="hover:text-primary transition-colors cursor-pointer no-underline">
-            {t("help")}
-          </a>
-        </div>
-      </footer>
     </div>
   );
 };

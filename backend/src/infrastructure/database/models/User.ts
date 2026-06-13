@@ -51,6 +51,18 @@ const UserSchema: Schema = new Schema(
       type: Number,
       default: 0,
     },
+    eloRating: {
+      type: Number,
+      default: 1200,
+    },
+    winStreak: {
+      type: Number,
+      default: 0,
+    },
+    maxWinStreak: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

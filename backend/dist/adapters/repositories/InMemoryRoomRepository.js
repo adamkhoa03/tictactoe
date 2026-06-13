@@ -22,6 +22,9 @@ class InMemoryRoomRepository {
     async findAllWaitingRooms() {
         return Array.from(roomStore.values()).filter((room) => room.status === 'waiting' && room.players.length < 2);
     }
+    async findAllRooms() {
+        return Array.from(roomStore.values());
+    }
     async save(room) {
         room.updatedAt = new Date();
         roomStore.set(room.id, room);

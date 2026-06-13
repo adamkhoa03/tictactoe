@@ -8,9 +8,14 @@ export const UserProfileWidget: React.FC = () => {
 
   if (!user) return null;
 
+  const gamesPlayed = user.gamesPlayed ?? user.matchesPlayed ?? 0;
+  const wins = user.wins ?? user.matchesWon ?? 0;
+  const losses = user.losses ?? 0;
+  const draws = user.draws ?? 0;
+
   const winRate =
-    user.matchesPlayed && user.matchesPlayed > 0
-      ? Math.round(((user.matchesWon ?? 0) / user.matchesPlayed) * 100)
+    gamesPlayed > 0
+      ? Math.round((wins / gamesPlayed) * 100)
       : 0;
 
   const formatNumber = (n: number | undefined | null) => {
@@ -76,21 +81,32 @@ export const UserProfileWidget: React.FC = () => {
             <p className="font-nunito text-label-status text-on-surface-variant mb-1">
               {t("matches")}
             </p>
-            <p className="font-quicksand font-bold text-headline-md text-secondary">
-              {formatNumber(user.matchesPlayed)}
+            <p className="font-quicksand font-bold text-headline-md text-primary">
+              {formatNumber(gamesPlayed)}
             </p>
           </div>
         </div>
 
-        {/* Win / Loss quick stats */}
-        <div className="mt-3 flex gap-2 justify-center">
-          <span className="bg-green-500/10 text-green-600 border border-green-500/20 px-3 py-1 rounded-full font-quicksand font-bold text-label-status">
-            W: {user.matchesWon ?? 0}
+        {/* Win / Loss / Draw quick stats */}
+        <div className="mt-3 flex gap-2 justify-center flex-wrap">
+          <span className="bg-green-500/10 text-green-600 border border-green-500/20 px-2.5 py-0.5 rounded-full font-quicksand font-bold text-[11px]">
+            W: {wins}
           </span>
-          <span className="bg-red-500/10 text-red-600 border border-red-500/20 px-3 py-1 rounded-full font-quicksand font-bold text-label-status">
-            L: {(user.matchesPlayed ?? 0) - (user.matchesWon ?? 0)}
+          <span className="bg-red-500/10 text-red-600 border border-red-500/20 px-2.5 py-0.5 rounded-full font-quicksand font-bold text-[11px]">
+            L: {losses}
+          </span>
+          <span className="bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2.5 py-0.5 rounded-full font-quicksand font-bold text-[11px]">
+            D: {draws}
           </span>
         </div>
+
+        {/* Win Streak stats badge */}
+        {user.winStreak !== undefined && user.winStreak > 0 && (
+          <div className="mt-3 flex items-center justify-center gap-1.5 py-1 px-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-[11px] font-bold font-quicksand w-fit mx-auto animate-pulse">
+            <span className="material-symbols-outlined text-[14px]">local_fire_department</span>
+            <span>Chuỗi thắng: {user.winStreak}</span>
+          </div>
+        )}
       </div>
     </div>
   );

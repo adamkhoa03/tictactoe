@@ -7,6 +7,9 @@ export interface User {
   losses?: number;
   draws?: number;
   gamesPlayed?: number;
+  eloRating?: number;
+  winStreak?: number;
+  maxWinStreak?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

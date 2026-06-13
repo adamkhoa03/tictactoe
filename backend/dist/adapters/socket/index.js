@@ -5,26 +5,56 @@ const zod_1 = require("zod");
 const CreateRoom_1 = require("../../use-cases/game/CreateRoom");
 const JoinRoom_1 = require("../../use-cases/game/JoinRoom");
 const MakeMove_1 = require("../../use-cases/game/MakeMove");
+const GetWaitingRooms_1 = require("../../use-cases/game/GetWaitingRooms");
 const room_schema_1 = require("../../schemas/room.schema");
 const shared_instances_1 = require("../../infrastructure/shared-instances");
 const MongooseUserRepository_1 = require("../repositories/MongooseUserRepository");
 const createRoomUseCase = new CreateRoom_1.CreateRoom(shared_instances_1.sharedRoomRepository);
 const joinRoomUseCase = new JoinRoom_1.JoinRoom(shared_instances_1.sharedRoomRepository);
 const makeMoveUseCase = new MakeMove_1.MakeMove(shared_instances_1.sharedRoomRepository);
+const getWaitingRoomsUseCase = new GetWaitingRooms_1.GetWaitingRooms(shared_instances_1.sharedRoomRepository);
 const mongooseUserRepository = new MongooseUserRepository_1.MongooseUserRepository();
 // Trạng thái người chơi online
 const onlineUsers = new Map();
+// Hàm phát sóng danh sách phòng sảnh chờ
+async function broadcastLobbyRooms(io) {
+    try {
+        const waitingRooms = await getWaitingRoomsUseCase.execute();
+        const publicRooms = waitingRooms.map((room) => ({
+            id: room.id,
+            boardSize: room.boardSize,
+            winCondition: room.winCondition,
+            hostUsername: room.players[0]?.username || 'Host',
+            createdAt: room.createdAt.toISOString(),
+        }));
+        io.emit('lobby_rooms', { rooms: publicRooms });
+    }
+    catch (err) {
+        console.error('Error broadcasting lobby rooms:', err);
+    }
+}
 // Hàm phát sóng danh sách người chơi sảnh chờ
 async function broadcastLobbyPlayers(io) {
     try {
         const allUsers = await mongooseUserRepository.findAll();
+        // Tìm tất cả người chơi đang trong các phòng chờ hoặc đang chơi
+        const allRooms = await shared_instances_1.sharedRoomRepository.findAllRooms();
+        const busyUserIds = new Set();
+        for (const r of allRooms) {
+            if (r.status === 'waiting' || r.status === 'playing') {
+                for (const p of r.players) {
+                    busyUserIds.add(p.userId);
+                }
+            }
+        }
         const sortedPlayers = allUsers.map((user) => {
             const isOnline = onlineUsers.has(user.id || '');
+            const isPlaying = busyUserIds.has(user.id || '');
             return {
                 id: user.id || '',
                 username: user.username,
                 rank: (user.wins ?? 0) >= 20 ? 'Grandmaster' : (user.wins ?? 0) >= 10 ? 'Diamond I' : 'Gold I',
-                isPlaying: false,
+                isPlaying,
                 isOnline,
             };
         }).sort((a, b) => {
@@ -38,6 +68,55 @@ async function broadcastLobbyPlayers(io) {
         console.error('Error broadcasting lobby players:', err);
     }
 }
+// Hàm xử lý khi người chơi thoát phòng
+async function handlePlayerLeaveRoom(io, socket, userId, roomId) {
+    try {
+        const room = await shared_instances_1.sharedRoomRepository.findById(roomId);
+        if (!room)
+            return;
+        // Remove player
+        room.players = room.players.filter((p) => p.userId !== userId);
+        // Remove from socket room
+        await socket.leave(roomId);
+        if (room.players.length === 0) {
+            await shared_instances_1.sharedRoomRepository.delete(roomId);
+            console.log(`🗑️ Room ${roomId} deleted because all players left.`);
+        }
+        else {
+            if (room.status === 'playing') {
+                // Trận đấu đã bắt đầu, người còn lại thắng cuộc
+                room.status = 'waiting'; // Quay về trạng thái chờ để sảnh nhìn thấy và ghép đôi lại
+                room.winnerId = room.players[0].userId;
+                room.reason = 'surrender'; // Coi như đối thủ đầu hàng khi thoát phòng
+                // Reset bàn cờ rỗng theo kích thước hiện tại
+                room.board = Array.from({ length: room.boardSize }, () => Array(room.boardSize).fill(''));
+                io.to(roomId).emit('game_over', {
+                    winnerId: room.winnerId,
+                    reason: 'surrender',
+                });
+            }
+            else if (room.status === 'finished') {
+                // Trận đấu đã kết thúc trước đó, một người rời đi đưa phòng về trạng thái chờ ghép người chơi khác
+                room.status = 'waiting';
+                room.winnerId = null;
+                delete room.reason;
+                room.board = Array.from({ length: room.boardSize }, () => Array(room.boardSize).fill(''));
+            }
+            else {
+                // Trận đấu chưa bắt đầu, phòng quay lại trạng thái chờ ghép cặp người chơi mới
+                console.log(`🔄 Player left before game start. Room ${roomId} remains in waiting state.`);
+            }
+            await shared_instances_1.sharedRoomRepository.save(room);
+            io.to(roomId).emit('room_state', { room });
+            console.log(`🚪 Player ${userId} left Room ${roomId}. Players remaining: ${room.players.length}`);
+        }
+        // Broadcast updated rooms list to lobby
+        broadcastLobbyRooms(io);
+    }
+    catch (err) {
+        console.error('Error handling player leave room:', err);
+    }
+}
 const quickMatchQueue = new Map();
 function registerSocketHandlers(io) {
     io.on('connection', (socket) => {
@@ -47,12 +126,19 @@ function registerSocketHandlers(io) {
             onlineUsers.set(user.userId, { socketId: socket.id, username: user.username });
             console.log(`👤 User ${user.username} is online. Total online: ${onlineUsers.size}`);
             broadcastLobbyPlayers(io);
+            broadcastLobbyRooms(io);
         }
         // -------------------------------------------------------------------
         // get_lobby_players: Yêu cầu danh sách người chơi ở sảnh chờ
         // -------------------------------------------------------------------
         socket.on('get_lobby_players', () => {
             broadcastLobbyPlayers(io);
+        });
+        // -------------------------------------------------------------------
+        // get_lobby_rooms: Yêu cầu danh sách phòng ở sảnh chờ
+        // -------------------------------------------------------------------
+        socket.on('get_lobby_rooms', () => {
+            broadcastLobbyRooms(io);
         });
         // -------------------------------------------------------------------
         // quick_match: Ghép phòng nhanh
@@ -268,6 +354,7 @@ function registerSocketHandlers(io) {
                     },
                 });
                 io.emit('lobby_updated');
+                broadcastLobbyRooms(io);
                 console.log(`🎮 Game started manually in Room: ${room.id}`);
             }
             catch (err) {
@@ -295,6 +382,7 @@ function registerSocketHandlers(io) {
                 console.log(`🔄 Room ${room.id} reset to preparation lobby (waiting) by ${user.username}`);
                 // Phát trạng thái mới cho cả phòng
                 io.to(roomId).emit('room_state', { room });
+                broadcastLobbyRooms(io);
             }
             catch (err) {
                 console.error('Error on play again:', err);
@@ -400,6 +488,7 @@ function registerSocketHandlers(io) {
                     io.emit('lobby_updated');
                     console.log(`⚡ Waiting player ${waitingPlayer.username} matched into newly created Room: ${room.id}`);
                 }
+                broadcastLobbyRooms(io);
             }
             catch (error) {
                 if (error instanceof zod_1.ZodError) {
@@ -444,6 +533,7 @@ function registerSocketHandlers(io) {
                     io.to(room.id).emit('room_state', { room });
                 }
                 io.emit('lobby_updated');
+                broadcastLobbyRooms(io);
                 console.log(`🚪 Player ${user.username} joined room ${room.id}`);
             }
             catch (error) {
@@ -473,6 +563,14 @@ function registerSocketHandlers(io) {
             }
         });
         // -------------------------------------------------------------------
+        // leave_room: Rời khỏi phòng đấu
+        // -------------------------------------------------------------------
+        socket.on('leave_room', (payload) => {
+            if (!user)
+                return;
+            handlePlayerLeaveRoom(io, socket, user.userId, payload.roomId);
+        });
+        // -------------------------------------------------------------------
         // Disconnect
         // -------------------------------------------------------------------
         socket.on('disconnect', (reason) => {
@@ -490,6 +588,20 @@ function registerSocketHandlers(io) {
                     console.log(`👤 User ${user.username} went offline. Total online: ${onlineUsers.size}`);
                     broadcastLobbyPlayers(io);
                 }
+                // Tự động cho người dùng thoát phòng khi ngắt kết nối
+                (async () => {
+                    try {
+                        const allRooms = await shared_instances_1.sharedRoomRepository.findAllRooms();
+                        for (const r of allRooms) {
+                            if (r.players.some((p) => p.userId === user.userId)) {
+                                await handlePlayerLeaveRoom(io, socket, user.userId, r.id);
+                            }
+                        }
+                    }
+                    catch (err) {
+                        console.error('Error handling disconnect room cleanup:', err);
+                    }
+                })();
             }
             console.log(`🔌 Client disconnected: ${socket.id} (User: ${user?.username ?? 'Unknown'}, Reason: ${reason})`);
         });

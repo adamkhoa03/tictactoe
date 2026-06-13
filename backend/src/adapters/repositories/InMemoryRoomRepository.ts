@@ -25,6 +25,10 @@ export class InMemoryRoomRepository implements IRoomRepository {
     );
   }
 
+  async findAllRooms(): Promise<Room[]> {
+    return Array.from(roomStore.values());
+  }
+
   async save(room: Room): Promise<Room> {
     room.updatedAt = new Date();
     roomStore.set(room.id, room);

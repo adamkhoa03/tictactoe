@@ -1,5 +1,6 @@
 export default {
   // Navigation
+  appName: "Tic Tac Toe",
   lobby: "Lobby",
   leaderboard: "Leaderboard",
   history: "History",

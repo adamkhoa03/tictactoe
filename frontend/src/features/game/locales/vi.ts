@@ -1,5 +1,6 @@
 export default {
   // Navigation
+  appName: "Cờ Ca Rô",
   lobby: "Sảnh chờ",
   leaderboard: "Bảng xếp hạng",
   history: "Lịch sử",
