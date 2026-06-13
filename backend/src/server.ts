@@ -1,6 +1,7 @@
 import http from 'http';
 import { Server } from 'socket.io';
 import app from './app';
+import { connectDB } from './infrastructure/database/mongoose';
 
 const PORT = process.env.PORT || 5000;
 
@@ -24,6 +25,14 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`🚀 Server is listening on port ${PORT}`);
-});
+const startServer = async () => {
+  // Kết nối Database
+  await connectDB();
+
+  server.listen(PORT, () => {
+    console.log(`🚀 Server is listening on port ${PORT}`);
+  });
+};
+
+startServer();
+
